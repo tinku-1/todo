@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+
+body {
+    background: linear-gradient(to bottom, #fbc2eb, #a6c1ee);
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    width: 90%; 
+    max-width: 600px;  
+    height: auto;
+    flex-direction: column; 
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    row-gap: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #444;
+    margin: 0;
+    font-size: 2rem;
+}
+
+.icon {
+    font-size: 50px;
+    color: #444;
+    display: block;
+    margin: 0 auto;
+}
+
+.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input[type="text"] {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ff6f61;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #e85c54;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+li {
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #fafafa;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li.completed {
+    text-decoration: line-through;
+    color: #888;
+}
+
+li div {
+    display: flex;
+    gap: 5px;
+}
+
+li div button {
+    margin-left: 5px;
+}
+
+.filter-section {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.filter-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.filter-btn:hover {
+    background-color: #444;
+}
+
+.filter-btn.active {
+    background-color: #ff6f61;
+}
+
+</style>
+<body>
+    <div class="container">
+        <!-- Icon -->
+        <i class="fas fa-tasks icon"></i>
+        <!-- Title -->
+        <h1>To-Do List</h1>
+        <div class="input-section">
+            <input type="text" id="new-task" placeholder="Enter a new task...">
+            <button id="add-task">Add Task</button>
+        </div>
+        <ul id="task-list"></ul>
+        <div class="filter-section">
+            <button class="filter-btn" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const addTaskBtn = document.getElementById('add-task');
+            const taskList = document.getElementById('task-list');
+            const newTaskInput = document.getElementById('new-task');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            addTaskBtn.addEventListener('click', addTask);
+            taskList.addEventListener('click', handleTaskActions);
+            filterBtns.forEach(btn => btn.addEventListener('click', filterTasks));
+
+            function addTask() {
+                const taskText = newTaskInput.value.trim();
+                if (taskText) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${taskText}</span>
+                        <div>
+                            <button class="edit-btn">Edit</button>
+                            <button class="complete-btn">Complete</button>
+                            <button class="delete-btn">Delete</button>
+                        </div>
+                    `;
+                    taskList.appendChild(li);
+                    newTaskInput.value = '';
+                }
+            }
+
+            function handleTaskActions(e) {
+                if (e.target.classList.contains('delete-btn')) {
+                    e.target.closest('li').remove();
+                } else if (e.target.classList.contains('complete-btn')) {
+                    e.target.closest('li').classList.toggle('completed');
+                } else if (e.target.classList.contains('edit-btn')) {
+                    const li = e.target.closest('li');
+                    const span = li.querySelector('span');
+                    const newText = prompt("Edit your task", span.textContent);
+                    if (newText) span.textContent = newText;
+                }
+            }
+
+            function filterTasks(e) {
+                const filter = e.target.dataset.filter;
+                const tasks = taskList.querySelectorAll('li');
+                filterBtns.forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+
+                tasks.forEach(task => {
+                    switch (filter) {
+                        case 'completed':
+                            task.style.display = task.classList.contains('completed') ? 'flex' : 'none';
+                            break;
+                        case 'pending':
+                            task.style.display = !task.classList.contains('completed') ? 'flex' : 'none';
+                            break;
+                        default:
+                            task.style.display = 'flex';
+                    }
+                });
+            }
+        });
+
+    </script>
+</body>
+</html>
